@@ -100,6 +100,9 @@ export const getUtxos = async function (
   wallet: WalletService,
   address: btc.Address,
 ): Promise<UTXO[]> {
+
+  return getFractalUtxos(config, address);
+  
   if (config.useRpc()) {
     const utxos = await rpc_listunspent(
       config,
