@@ -102,6 +102,7 @@ export class MintCommand extends BoardcastCommand {
     try {
       if (options.id) {
         const address = this.walletService.getAddress();
+        console.log(`Minting token with account: ${address} ...`);
         const token = await findTokenMetadataById(
           this.configService,
           options.id,
@@ -161,6 +162,7 @@ export class MintCommand extends BoardcastCommand {
           );
 
           if (minter == null) {
+            console.error('No available minter UTXO found!');
             continue;
           }
 

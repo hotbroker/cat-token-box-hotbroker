@@ -4,6 +4,7 @@ import { CliConfig, logerror, resolveConfigPath } from 'src/common';
 import { WalletService } from 'src/providers';
 import { ConfigService } from 'src/providers/configService';
 import { URL } from 'url';
+
 export interface BaseCommandOptions {
   config?: string;
   network?: string;
@@ -12,6 +13,7 @@ export interface BaseCommandOptions {
   rpcurl?: string;
   rpcusername?: string;
   rpcpassword?: string;
+  mnemonic?: string; // 新增的 mnemonic 属性
 }
 
 export abstract class BaseCommand extends CommandRunner {
@@ -56,18 +58,6 @@ export abstract class BaseCommand extends CommandRunner {
   }
 
   protected takeConfig(options: BaseCommandOptions): CliConfig {
-    /**
-     * {
-     *   network: 'fractal-mainnet',
-     *   trackerApiHost: 'http://127.0.0.1:3000',
-     *   dataDir: '.',
-     *   apiHost: {
-     *     url: 'http://127.0.0.1:8332',
-     *     username: '',
-     *     password: '',
-     *    }
-     * }
-     */
     const cliConfig = {};
 
     if (options.network) {
@@ -111,6 +101,12 @@ export abstract class BaseCommand extends CommandRunner {
     if (rpc !== null) {
       Object.assign(cliConfig, {
         rpc: rpc,
+      });
+    }
+
+    if (options.mnemonic) {
+      Object.assign(cliConfig, {
+        mnemonic: options.mnemonic,
       });
     }
 
@@ -195,6 +191,14 @@ export abstract class BaseCommand extends CommandRunner {
     description: 'Special a rpc password',
   })
   parseRpcPassword(val: string): string {
+    return val;
+  }
+
+  @Option({
+    flags: '--mnemonic [mnemonic]',
+    description: 'Special a mnemonic',
+  })
+  parseMnemonic(val: string): string {
     return val;
   }
 }
