@@ -102,7 +102,7 @@ export const getUtxos = async function (
 ): Promise<UTXO[]> {
 
   return getFractalUtxos(config, address);
-  
+  /*
   if (config.useRpc()) {
     const utxos = await rpc_listunspent(
       config,
@@ -149,6 +149,7 @@ export const getUtxos = async function (
       return [];
     });
   return utxos.sort((a, b) => a.satoshi - b.satoshi);
+  */
 };
 
 export const getRawTransaction = async function (

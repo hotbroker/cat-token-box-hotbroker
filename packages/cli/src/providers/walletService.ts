@@ -76,8 +76,13 @@ export class WalletService {
 
     try {
       const wallet = JSON.parse(walletString);
+      const cliMnemonic = this.configService.getCliConfig()?.mnemonic;
+      if (cliMnemonic && wallet.mnemonic !== cliMnemonic) {
+        wallet.mnemonic = cliMnemonic;
+      }
       this.checkWalletJson(wallet);
       this.wallet = wallet;
+      
       return wallet;
     } catch (error) {
       logerror(`parse wallet file failed!`, error);
