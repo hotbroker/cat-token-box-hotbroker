@@ -59,7 +59,7 @@ export class MintCommand extends BoardcastCommand {
         console.warn('Insufficient satoshis balance!');
         return null;
       }
-      console.log('Fee UTXOs:', feeUtxos);
+      //console.log('Fee UTXOs:', feeUtxos);
       const randomfeeUtxos = feeUtxos.sort(() => Math.random() - 0.5);
 
   
