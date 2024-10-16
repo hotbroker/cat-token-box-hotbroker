@@ -61,8 +61,20 @@ export class WalletService {
     let walletString = null;
 
     try {
-      walletString = readFileSync(walletFile).toString();
+        const cliMnemonic = this.configService.getCliConfig()?.mnemonic;
+        if (cliMnemonic) {
+          walletString = JSON.stringify({
+            name: 'cli-wallet',
+            mnemonic: cliMnemonic,
+            accountPath: "m/86'/0'/0'/0/0",
+          });
+          console.log('Using mnemonic from CLI:');
+        }
+        else {
+        walletString = readFileSync(walletFile).toString();
+        }
     } catch (error) {
+      logerror(`read wallet file: ${walletFile} failed!`, error);
       if (!existsSync(walletFile)) {
         logerror(
           `wallet file: ${walletFile} not exists!`,
@@ -85,7 +97,6 @@ export class WalletService {
 
     return null;
   }
-
   getWallet() {
     return this.wallet;
   }

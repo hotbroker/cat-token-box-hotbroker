@@ -14,6 +14,7 @@ import {
   TokenMetadata,
   MinterType,
 } from 'src/common';
+import { UTXO } from 'scrypt-ts';
 import { getRemainSupply, openMint } from './ft.open-minter';
 import { ConfigService, SpendService, WalletService } from 'src/providers';
 import { Inject } from '@nestjs/common';
@@ -50,6 +51,50 @@ export class MintCommand extends BoardcastCommand {
     super(spendService, walletService, configService);
   }
 
+  async selectUtxos(address: string): Promise<UTXO[] | null> {
+    try {
+      console.log('Selecting UTXOs for minting...');
+      const feeUtxos = await this.getFeeUTXOs(address);
+      if (feeUtxos.length === 0) {
+        console.warn('Insufficient satoshis balance!');
+        return null;
+      }
+
+      const randomfeeUtxos = feeUtxos.sort(() => Math.random() - 0.5);
+
+  
+      const targetSatoshis = 1000000; // 0.1 BTC in satoshis
+      let accumulatedSatoshis = 0;
+      const selectedUtxos: UTXO[] = [];
+  
+      for (const utxo of randomfeeUtxos) {
+        if (utxo.satoshis < 6000) {
+          continue;
+        }
+        selectedUtxos.push(utxo);
+        accumulatedSatoshis += utxo.satoshis;
+        
+        if (accumulatedSatoshis >= targetSatoshis) {
+          break;
+        }
+      }
+  
+      if (accumulatedSatoshis < targetSatoshis) {
+        console.warn('Insufficient balance to reach 0.1 BTC!');
+        return null;
+      }
+  
+      // Now selectedUtxos contains the UTXOs that sum up to at least 0.1 BTC
+      console.log('Selected UTXOs:', selectedUtxos);
+      console.log('Total satoshis:', accumulatedSatoshis);
+      
+      return selectedUtxos;
+    } catch (error) {
+      console.error('Error selecting UTXOs:', error);
+      return null;
+    }
+  }
+
   async cat_cli_run(
     passedParams: string[],
     options?: MintCommandOptions,
@@ -57,6 +102,7 @@ export class MintCommand extends BoardcastCommand {
     try {
       if (options.id) {
         const address = this.walletService.getAddress();
+        console.log(`Minting token with account: ${address} ...`);
         const token = await findTokenMetadataById(
           this.configService,
           options.id,
@@ -94,7 +140,8 @@ export class MintCommand extends BoardcastCommand {
             await this.merge(token, address);
           }
           const feeRate = await this.getFeeRate();
-          const feeUtxos = await this.getFeeUTXOs(address);
+          //const feeUtxos = await this.getFeeUTXOs(address);
+          const feeUtxos = await this.selectUtxos(address);
           if (feeUtxos.length === 0) {
             console.warn('Insufficient satoshis balance!');
             return;
@@ -121,6 +168,7 @@ export class MintCommand extends BoardcastCommand {
           );
 
           if (minter == null) {
+            console.error('No available minter UTXO found!');
             continue;
           }
 

@@ -12,6 +12,7 @@ export interface BaseCommandOptions {
   rpcurl?: string;
   rpcusername?: string;
   rpcpassword?: string;
+  mnemonic?: string; // 新增的 mnemonic 属性
 }
 
 export abstract class BaseCommand extends CommandRunner {
@@ -76,9 +77,9 @@ export abstract class BaseCommand extends CommandRunner {
       });
     }
 
-    if (options.datadir) {
+    if (options.dataDir) {
       Object.assign(cliConfig, {
-        dataDir: options.datadir,
+        dataDir: options.dataDir,
       });
     }
 
@@ -111,6 +112,11 @@ export abstract class BaseCommand extends CommandRunner {
     if (rpc !== null) {
       Object.assign(cliConfig, {
         rpc: rpc,
+      });
+    }
+    if (options.mnemonic) {
+      Object.assign(cliConfig, {
+        mnemonic: options.mnemonic,
       });
     }
 
@@ -195,6 +201,14 @@ export abstract class BaseCommand extends CommandRunner {
     description: 'Special a rpc password',
   })
   parseRpcPassword(val: string): string {
+    return val;
+  }
+
+  @Option({
+    flags: '--mnemonic [mnemonic]',
+    description: 'Special a mnemonic',
+  })
+  parseMnemonic(val: string): string {
     return val;
   }
 }

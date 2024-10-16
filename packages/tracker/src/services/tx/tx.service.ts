@@ -115,6 +115,9 @@ export class TxService {
           );
           this.logger.log(`[OK] reveal tx ${tx.getId()}`);
         } else {
+          throw new CatTxError(
+            'no this m tx',
+          );
           // found minter in inputs, this is a token mint tx
           stateHashes = await this.processMintTx(
             queryRunner.manager,
@@ -128,6 +131,9 @@ export class TxService {
           this.logger.log(`[OK] mint tx ${tx.getId()}`);
         }
       } else {
+        throw new CatTxError(
+          'no this t tx',
+        );
         // found Guard in inputs, this is a token transfer tx
         for (const guardInput of guardInputs) {
           stateHashes = await this.processTransferTx(
